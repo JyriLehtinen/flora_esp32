@@ -1,3 +1,6 @@
+(Forked from https://github.com/sidddy/flora)
+
+
 ## flora
 
 This arduino sketch implements an ESP32 BLE client for XIaomi Mi Flora Plant sensors, pushing the meaasurements to an MQTT server.
