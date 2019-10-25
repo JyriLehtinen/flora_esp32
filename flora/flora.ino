@@ -31,7 +31,9 @@
    SOFTWARE.
 */
 
-#include "BLEDevice.h"
+#include <BLEDevice.h>
+#include <BLEScan.h>
+#include <BLEUtils.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 
@@ -41,7 +43,7 @@
 RTC_DATA_ATTR int bootCount = 0;
 
 // device count
-static int deviceCount = sizeof FLORA_DEVICES / sizeof FLORA_DEVICES[0];
+int deviceCount = sizeof FLORA_DEVICES / sizeof FLORA_DEVICES[0];
 
 // the remote service we wish to connect to
 static BLEUUID serviceUUID("00001204-0000-1000-8000-00805f9b34fb");
@@ -316,6 +318,43 @@ bool processFloraDevice(BLEAddress floraAddress, char* deviceMacAddress, bool ge
   return success;
 }
 
+/***** ADDITIONAL BLE SCANNING FUNCTIONS *****/
+
+// Callback on what to do with found devices
+class AdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
+	void onResult(BLEAdvertisedDevice advertisedDevice) {
+		// New device found
+		const char* device_addr_str = advertisedDevice.getAddress().toString().c_str();
+		Serial.printf("Advertised Device: %s \n", device_addr_str);
+
+		// check if the first three bytes match Flora pattern
+		if( memcmp(FLORA_PATTERN, device_addr_str, 8) == 0 )
+		{
+			if( device_addr_str[9] == '6') // Fourth byte can be 6A or 6B
+			{
+				Serial.println("New Flora Device Found!");
+				strcpy( FLORA_DEVICES_DYNAMIC[deviceCount], device_addr_str );
+				deviceCount++;
+			}
+		}
+		
+	}
+};
+
+bool populateFloraList(BLEScan* scan_handle)
+{
+	scan_handle = BLEDevice::getScan(); // Create a scan instance
+	scan_handle->setAdvertisedDeviceCallbacks(new AdvertisedDeviceCallbacks(), false);
+	scan_handle->setActiveScan(true); //active scan uses more power, but get results faster
+	scan_handle->setInterval(100);
+	scan_handle->setWindow(99);  // less or equal setInterval value
+
+	deviceCount = 0;
+	scan_handle->start(BLE_SCAN_DURATION, false);
+	Serial.printf("Scanning complete, %d Floras found\n", deviceCount);
+	scan_handle->clearResults(); // Delete scan results from BLE buffer
+}
+
 void hibernate() {
   esp_sleep_enable_timer_wakeup(SLEEP_DURATION * 1000000ll);
   Serial.println("Going to sleep now.");
@@ -351,10 +390,16 @@ void setup() {
   // check if battery status should be read - based on boot count
   bool readBattery = ((bootCount % BATTERY_INTERVAL) == 0);
 
+  // Scan for BLE devices
+  BLEScan* ble_scan_handle; 
+  
+  populateFloraList(ble_scan_handle);
+
+
   // process devices
   for (int i=0; i<deviceCount; i++) {
     int tryCount = 0;
-    char* deviceMacAddress = FLORA_DEVICES[i];
+    char* deviceMacAddress = FLORA_DEVICES_DYNAMIC[i];
     BLEAddress floraAddress(deviceMacAddress);
 
     while (tryCount < RETRY) {
