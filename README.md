@@ -14,14 +14,20 @@ Hardware:
 Software:
 - MQTT server
 
+Arduino Libraries (not complete)
+ - https://github.com/Hieromon/PageBuilder
+ - https://github.com/Hieromon/AutoConnect
+
 ## Setup instructions
 
 1) Copy config.h.example into config.h and update seetings according to your environment:
-- WLAN SSID and password
-- MQTT Server address
-- MAC address(es) of your Xiaomi Mi Plant sensor(s)
+- MQTT Server address and credentials
 
 2) Open ino sketch in Arduino, compile & upload. 
+
+3) If not connected to Wifi, ESP32 launches as AP with **SSID "Flora ESP32 GW"**
+Connect to the Wifi and input **password "kukkaruukku"**
+From here you can search for available networks and input credentials. You only need to do this once, ESP32 will remember the network(s).
 
 ## Measuring interval
 
