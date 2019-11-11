@@ -34,10 +34,13 @@
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEUtils.h>
-#include <WiFi.h>
+//#include <WiFi.h>
 #include <PubSubClient.h>
 
 #include "config.h"
+
+#include <AutoConnect.h>
+AutoConnect portal;
 
 // boot count used to check if battery status should be read
 RTC_DATA_ATTR int bootCount = 0;
@@ -58,13 +61,21 @@ TaskHandle_t hibernateTaskHandle = NULL;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-void connectWifi() {
-  Serial.println("Connecting to WiFi...");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+void connectWifi()
+{
+  Serial.println("Starting AutoConnect Wifi portal..");
+  AutoConnectConfig conf;
+  conf.title = "Flora ESP32 Gateway";
+  conf.title = "Flora ESP32 Gateway";
+  conf.apid = "Flora GW ESP32";
+  conf.psk = "kukkaruukku";
+  conf.autoReconnect = true;
+  
+  portal.config(conf);
+  portal.begin();
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+	portal.handleClient();
   }
 
   Serial.println("");
@@ -328,7 +339,7 @@ class AdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 		Serial.printf("Advertised Device: %s \n", device_addr_str);
 
 		// check if the first three bytes match Flora pattern
-		if( memcmp(FLORA_PATTERN, device_addr_str, 8) == 0 )
+		if( memcmp(FLORA_PATTERN, device_addr_str, 7) == 0 )
 		{
 			if( device_addr_str[9] == '6') // Fourth byte can be 6A or 6B
 			{
