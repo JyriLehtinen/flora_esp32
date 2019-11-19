@@ -1,5 +1,13 @@
-// Max Number of devices monitored
-#define MAX_DEVICES 64
+
+// array of different xiaomi flora MAC addresses
+char* FLORA_DEVICES[] = {
+    "C4:7C:8D:6A:A3:8A",
+    "C4:7C:8D:6A:A2:96",
+    "C4:7C:8D:6A:AB:FC",
+    "C4:7C:8D:6A:A6:97",
+    "C4:7C:8D:6A:A6:FE",
+    "C4:7C:8D:6A:BC:D0"
+};
 
 // sleep between to runs in seconds
 #define SLEEP_DURATION 60 * 60
@@ -9,6 +17,9 @@
 #define BATTERY_INTERVAL 6
 // how often should a device be retried in a run when something fails
 #define RETRY 5
+
+const char*   WIFI_SSID       = "yourwifiname";
+const char*   WIFI_PASSWORD   = "passwordhere";
 
 // MQTT topic gets defined by "<MQTT_BASE_TOPIC>/<MAC_ADDRESS>/<property>"
 // where MAC_ADDRESS is one of the values from FLORA_DEVICES array
