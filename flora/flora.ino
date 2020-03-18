@@ -112,6 +112,23 @@ void disconnectMqtt() {
   Serial.println("MQTT disconnected");
 }
 
+uint8_t getConnDetails(char* mac, char* wifiSSID)
+{
+	uint8_t macAddr[6];
+	WiFi.macAddress(macAddr);
+	sprintf(mac, "%2X:%2X:%2X:%2X:%2X:%2X",
+	macAddr[0],
+	macAddr[1],
+	macAddr[2],
+	macAddr[3],
+	macAddr[4],
+	macAddr[5]);
+
+	snprintf(wifiSSID, 32, "%s", WiFi.SSID());
+
+	return 0; //FIXME Should return error codes in case something fails
+}
+
 BLEClient* getFloraClient(BLEAddress floraAddress) {
   BLEClient* floraClient = BLEDevice::createClient();
 
@@ -169,7 +186,7 @@ bool forceFloraServiceDataMode(BLERemoteService* floraService) {
   return true;
 }
 
-bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopic) {
+bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopic, char* mac, char* wifiSSID) {
   BLERemoteCharacteristic* floraCharacteristic = nullptr;
 
   // get the main device data characteristic
@@ -233,6 +250,7 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "values").c_str(), buffer); 
   */
 
+  /*
   char buffer[64];
   snprintf(buffer, 64, "{\"value\":%f, \"unit\": \"C\"}", temperature);
   client.publish((baseTopic + "temperature").c_str(), buffer); 
@@ -242,11 +260,21 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "light").c_str(), buffer);
   snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"uS/cm\"}", conductivity);
   client.publish((baseTopic + "conductivity").c_str(), buffer);
+  */
+  char buffer[128];
+  snprintf(buffer, 128, "{\"value\":%f, \"unit\": \"C\", \"gw_mac\":\"%s\", \"wifi\":\"%s\"}", temperature, mac, wifiSSID);
+  client.publish((baseTopic + "temperature").c_str(), buffer); 
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"gw_mac\":\"%s\", \"wifi\":\"%s\"}", moisture, mac, wifiSSID); 
+  client.publish((baseTopic + "moisture").c_str(), buffer);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"lux\", \"gw_mac\":\"%s\", \"wifi\":\"%s\"}", light, mac, wifiSSID);
+  client.publish((baseTopic + "light").c_str(), buffer);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"uS/cm\", \"gw_mac\":\"%s\", \"wifi\":\"%s\"}", conductivity, mac, wifiSSID);
+  client.publish((baseTopic + "conductivity").c_str(), buffer);
 
   return true;
 }
 
-bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseTopic) {
+bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseTopic, char* mac, char* wifiSSID) {
   BLERemoteCharacteristic* floraCharacteristic = nullptr;
 
   // get the device battery characteristic
@@ -276,11 +304,11 @@ bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseT
   const char *val2 = value.c_str();
   int battery = val2[0];
 
-  char buffer[64];
+  char buffer[128];
 
   Serial.print("-- Battery: ");
   Serial.println(battery);
-  snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"\%\"}", battery);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"gw_mac\":\"%s\", \"wifi\":\"%s\"}", battery, mac, wifiSSID);
   client.publish((baseTopic + "battery").c_str(), buffer);
 
   return true;
@@ -293,11 +321,15 @@ bool processFloraService(BLERemoteService* floraService, const char* deviceMacAd
   }
 
   String baseTopic = MQTT_BASE_TOPIC + "/" + deviceMacAddress + "/";
-  bool dataSuccess = readFloraDataCharacteristic(floraService, baseTopic);
+  char wifiSSID[32];
+  char mac[18];
+  getConnDetails(mac, wifiSSID);
+
+  bool dataSuccess = readFloraDataCharacteristic(floraService, baseTopic, mac, wifiSSID);
 
   bool batterySuccess = true;
   if (readBattery) {
-    batterySuccess = readFloraBatteryCharacteristic(floraService, baseTopic);
+    batterySuccess = readFloraBatteryCharacteristic(floraService, baseTopic, mac, wifiSSID);
   }
 
   return dataSuccess && batterySuccess;
@@ -477,6 +509,9 @@ void setup() {
 	// connect to Wifi or start as AP
 	connectWifi();
 
+
+  
+	
 	FloraDevicesScanner floraScanner;
 	if (floraScanner.scan()) {
 
@@ -502,7 +537,7 @@ void setup() {
 			delay(1500);
 		}
 	}
-
+	
 	// disconnect wifi and mqtt
 	disconnectWifi();
 	disconnectMqtt();
