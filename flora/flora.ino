@@ -262,13 +262,13 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "conductivity").c_str(), buffer);
   */
   char buffer[128];
-  snprintf(buffer, 128, "{\"value\":%f, \"unit\": \"C\", \"gw_mac\":\"%s\", \"gw_wifi\":\"%s\"}", temperature, mac, wifiSSID);
+  snprintf(buffer, 128, "{\"value\":%f, \"unit\": \"C\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", temperature, mac, wifiSSID);
   client.publish((baseTopic + "temperature").c_str(), buffer); 
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"gw_mac\":\"%s\", \"gw_wifi\":\"%s\"}", moisture, mac, wifiSSID); 
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", moisture, mac, wifiSSID); 
   client.publish((baseTopic + "moisture").c_str(), buffer);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"lux\", \"gw_mac\":\"%s\", \"gw_wifi\":\"%s\"}", light, mac, wifiSSID);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"lux\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", light, mac, wifiSSID);
   client.publish((baseTopic + "light").c_str(), buffer);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"uS/cm\", \"gw_mac\":\"%s\", \"gw_wifi\":\"%s\"}", conductivity, mac, wifiSSID);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"uS/cm\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", conductivity, mac, wifiSSID);
   client.publish((baseTopic + "conductivity").c_str(), buffer);
 
   return true;
@@ -308,7 +308,7 @@ bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseT
 
   Serial.print("-- Battery: ");
   Serial.println(battery);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"gw_mac\":\"%s\", \"gw_wifi\":\"%s\"}", battery, mac, wifiSSID);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", battery, mac, wifiSSID);
   client.publish((baseTopic + "battery").c_str(), buffer);
 
   return true;
