@@ -92,6 +92,7 @@ void disconnectWifi() {
 
 void connectMqtt() {
   Serial.println("Connecting to MQTT...");
+  client.setBufferSize(512);
   client.setServer(MQTT_HOST, MQTT_PORT);
 
   while (!client.connected()) {
@@ -250,7 +251,7 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "values").c_str(), buffer); 
   */
 
-  /*
+  
   char buffer[64];
   snprintf(buffer, 64, "{\"value\":%f, \"unit\": \"C\"}", temperature);
   client.publish((baseTopic + "temperature").c_str(), buffer); 
@@ -260,16 +261,26 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   client.publish((baseTopic + "light").c_str(), buffer);
   snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"uS/cm\"}", conductivity);
   client.publish((baseTopic + "conductivity").c_str(), buffer);
-  */
-  char buffer[128];
-  snprintf(buffer, 128, "{\"value\":%f, \"unit\": \"C\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", temperature, mac, wifiSSID);
+  
+  /*
+  char buffer[256];
+  snprintf(buffer, 256, "{\"value\":%f, \"unit\": \"C\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", temperature, mac, wifiSSID);
+  Serial.println(buffer);
   client.publish((baseTopic + "temperature").c_str(), buffer); 
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", moisture, mac, wifiSSID); 
+  delay(100);
+  snprintf(buffer, 256, "{\"value\":%d, \"unit\": \"\%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", moisture, mac, wifiSSID); 
+  Serial.println(buffer);
   client.publish((baseTopic + "moisture").c_str(), buffer);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"lux\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", light, mac, wifiSSID);
+  delay(100);
+  snprintf(buffer, 256, "{\"value\":%d, \"unit\": \"lux\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", light, mac, wifiSSID);
+  Serial.println(buffer);
   client.publish((baseTopic + "light").c_str(), buffer);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"uS/cm\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", conductivity, mac, wifiSSID);
+  delay(100);
+  snprintf(buffer, 256, "{\"value\":%d, \"unit\": \"uS/cm\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", conductivity, mac, wifiSSID);
+  Serial.println(buffer);
   client.publish((baseTopic + "conductivity").c_str(), buffer);
+  delay(100);
+  */
 
   return true;
 }
