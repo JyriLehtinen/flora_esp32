@@ -55,3 +55,27 @@ On Arduino IDE this can be achieved using "Tools -> Partition Scheme -> No OTA"
 ## Credits
 
 Many thanks go to the guys at https://github.com/open-homeautomation/miflora for figuring out the sensor protocol.
+
+
+## Update 2023-04-02
+Fixed formatting in snprintf and WiFi.SSID(), apparently something has changed with version. Since there's so many other things that should be done better I'll just list which versions I can compile with:
+
+Using library ESP32_BLE_Arduino at version 1.0.1
+Using library pubsubclient at version 2.8
+Using library AutoConnect at version 1.1.2
+Using library DNSServer at version 1.1.0
+Using library WiFi at version 1.0
+Using library WebServer at version 1.0
+Using library EEPROM at version 1.0.3
+Using library PageBuilder at version 1.3.4
+Using library Preferences at version 1.0
+Using library ArduinoJson at version 6.15.2
+Using library Ticker at version 1.1
+Using library HTTPClient at version 1.2
+Using library WiFiClientSecure at version 1.0
+Using library HTTPUpdate at version 1.3
+Using library Update at version 1.0
+Using library SPIFFS at version 1.0
+Using library FS at version 1.0
+Using library SPI at version 1.0
+Using library SD at version 1.0.5

@@ -125,7 +125,8 @@ uint8_t getConnDetails(char* mac, char* wifiSSID)
 	macAddr[4],
 	macAddr[5]);
 
-	snprintf(wifiSSID, 32, "%s", WiFi.SSID());
+	//snprintf(wifiSSID, 32, "%s", WiFi.SSID());
+  WiFi.SSID().toCharArray(wifiSSID, 32);
 
 	return 0; //FIXME Should return error codes in case something fails
 }
@@ -255,7 +256,7 @@ bool readFloraDataCharacteristic(BLERemoteService* floraService, String baseTopi
   char buffer[64];
   snprintf(buffer, 64, "{\"value\":%f, \"unit\": \"C\"}", temperature);
   client.publish((baseTopic + "temperature").c_str(), buffer); 
-  snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"\%\"}", moisture); 
+  snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"\%%\"}", moisture); 
   client.publish((baseTopic + "moisture").c_str(), buffer);
   snprintf(buffer, 64, "{\"value\":%d, \"unit\": \"lux\"}", light);
   client.publish((baseTopic + "light").c_str(), buffer);
@@ -319,7 +320,7 @@ bool readFloraBatteryCharacteristic(BLERemoteService* floraService, String baseT
 
   Serial.print("-- Battery: ");
   Serial.println(battery);
-  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", battery, mac, wifiSSID);
+  snprintf(buffer, 128, "{\"value\":%d, \"unit\": \"\%%\", \"meta_mac\":\"%s\", \"meta_wifi\":\"%s\"}", battery, mac, wifiSSID);
   client.publish((baseTopic + "battery").c_str(), buffer);
 
   return true;
